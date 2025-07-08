@@ -29,7 +29,7 @@ export default function Room() {
     const [texts, setTexts] = useState<ChatMessage[]>([]);
     const [participants, setParticipants] = useState<participant[]>([]);
     useEffect(() => {
-        const ws: WebSocket = new WebSocket("http://localhost:3000");
+        const ws: WebSocket = new WebSocket("wss://broroom-backend.onrender.com/");
         setSocket(ws);
         ws.onopen = () => {
             ws.send(JSON.stringify({
