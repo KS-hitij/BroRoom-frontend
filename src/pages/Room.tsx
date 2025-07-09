@@ -126,9 +126,9 @@ export default function Room() {
                     <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-lg">Leave</button>
                 </div>
             </div>
-            <div className="navbar flex justify-end lg:hidden h-[10%] bg-base-300">
+            <div className="navbar flex justify-between sticky top-0 lg:hidden h-[10%] bg-base-300">
                     <h1 className="text-center text-2xl font-semibold">Room Id: {user.roomId}</h1>
-                    <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-lg">Leave</button>
+                    <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-sm">Leave</button>
             </div>
             <div className="w-[100%] lg:w-[75%] h-[90%] lg:h-[100%] bg-base-100 py-1 px-0.5 flex flex-col justify-end ">
                 <div className="flex flex-col gap-y-3 h-[94%] text-xl overflow-y-scroll">
@@ -145,7 +145,7 @@ export default function Room() {
                     }
                     <div ref={bottomRef} />
                 </div>
-                <div className="h-[10%] lg:h-[6%] w-full flex lg:justify-around">
+                <div className="h-[10%] lg:h-[6%] w-full flex sticky bottom-0 lg:justify-around">
                     <input type="text" onKeyDown={(e) => { if (e.key === "Enter") { sendChat() } }} onChange={(e) => setMessage(e.target.value)} value={message} className="input lg:w-[92%] active:outline-0 text-xl" placeholder="Message here" />
                     <button type="button" onClick={sendChat} className="btn btn-primary lg:w-[7%]">Send</button>
                 </div>
