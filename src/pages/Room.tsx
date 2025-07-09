@@ -100,7 +100,9 @@ export default function Room() {
         dispatch(clearUser());
         navigate("/");
     }
-
+    if(!getSocket()){
+        return <h1>Loading...</h1>
+    }
     return (
         <div className="h-[100%] w-[100%] flex flex-col lg:flex-row bg-base-300 relative">
             <div className="h-[100%] hidden lg:flex flex-col pt-6 lg:w-[25%]">
