@@ -66,10 +66,8 @@ export default function Room() {
             }
         }
 
-        ws.onclose =()=>{
-            clearInterval(id);
-        }
         return () => {
+            clearInterval(id);
             ws.close();
         };
     }, [user.avatar, user.name, user.roomId]);
