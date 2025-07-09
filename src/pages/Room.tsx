@@ -31,6 +31,7 @@ export default function Room() {
     useEffect(() => {
         const ws: WebSocket = new WebSocket("wss://broroom-backend.onrender.com/");
         setSocket(ws);
+        let id:NodeJS.Timeout;
         ws.onopen = () => {
             ws.send(JSON.stringify({
                 type: "join",
@@ -46,7 +47,7 @@ export default function Room() {
                     roomId: user.roomId
                 }
             }));
-            setInterval(() => {
+            id = setInterval(() => {
                 ws.send(JSON.stringify({
                     type: "users",
                     payload: {
@@ -63,6 +64,10 @@ export default function Room() {
             else if (data[0].type === "users") {
                 setParticipants(data)
             }
+        }
+
+        ws.onclose =()=>{
+            clearInterval(id);
         }
         return () => {
             ws.close();
