@@ -108,7 +108,7 @@ export default function Room() {
     }
     return (
         <div className="h-[100%] w-[100%] flex flex-col lg:flex-row bg-base-300 relative">
-            <div className="h-[100%] hidden lg:flex flex-col pt-6 lg:w-[25%]">
+            <div className="h-[100%] hidden lg:flex flex-col pt-6 lg:w-[25%] ">
                 <div className="w-full mb-15">
                     <h1 className="text-center mb-5">Room Id: {user.roomId}</h1>
                     <h1 className="text-5xl font-bold text-center">Users</h1>
