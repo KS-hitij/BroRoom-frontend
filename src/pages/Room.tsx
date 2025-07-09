@@ -126,8 +126,9 @@ export default function Room() {
                     <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-lg">Leave</button>
                 </div>
             </div>
-            <div className="navbar flex justify-center lg:hidden h-[10%] bg-base-300">
+            <div className="navbar flex justify-end lg:hidden h-[10%] bg-base-300">
                     <h1 className="text-center text-2xl font-semibold">Room Id: {user.roomId}</h1>
+                    <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-lg">Leave</button>
             </div>
             <div className="w-[100%] lg:w-[75%] h-[90%] lg:h-[100%] bg-base-100 py-1 px-0.5 flex flex-col justify-end ">
                 <div className="flex flex-col gap-y-3 h-[94%] text-xl overflow-y-scroll">
