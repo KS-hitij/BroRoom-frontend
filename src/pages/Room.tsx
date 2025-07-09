@@ -129,7 +129,7 @@ export default function Room() {
                 </div>
             </div>
             <div className="navbar flex justify-between sticky top-0 lg:hidden h-[10%] bg-base-300">
-                    <h1 className="text-center text-2xl font-semibold">Room Id: {user.roomId}</h1>
+                    <h1 className="text-center text-xl font-semibold">Room Id: {user.roomId}</h1>
                     <button type="button" onClick={leaveRoom} className="btn btn-error text-white font-bold btn-sm">Leave</button>
             </div>
             <div className="w-[100%] lg:w-[75%] h-[90%] lg:h-[100%] bg-base-100 py-1 px-0.5 flex flex-col justify-end ">
