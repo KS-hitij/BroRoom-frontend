@@ -82,7 +82,7 @@ export default function Room() {
             console.log(data);
             if (data.type === "chat")
                 setTexts(t => [...t, data]);
-            else if (data.type === "users") {
+            else if (data[0].type === "users") {
                 setParticipants(data)
             }
             else if (data.type === "error") {
