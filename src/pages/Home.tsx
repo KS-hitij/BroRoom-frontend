@@ -27,8 +27,7 @@ export default function Home() {
             roomId:uniqueId
         };
         dispatch(setUser(user));
-        
-        navigate(`/room/${uniqueId}`);
+        navigate(`/room/${uniqueId}`,{state:{isHosting:true}});
     }
     const handleJoin = async()=>{
         if (name.length == 0) {
@@ -50,7 +49,7 @@ export default function Home() {
         };
         dispatch(setUser(user));
         
-        navigate(`/room/${roomId}`);
+        navigate(`/room/${roomId}`,{state:{isHosting:false}});
     }
     return (
         <div className="h-[100%] w-[100%] flex flex-col items-center pt-20 gap-y-25">

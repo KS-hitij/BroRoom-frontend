@@ -3,7 +3,7 @@ import type { AppDispatch, RootState } from "../store"
 import { useEffect, useState, useRef } from "react";
 import { getSocket, setSocket } from "../utils/socketInstance";
 import { clearUser } from "../features/user/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 type ChatMessage = {
     type: string,
     payload: {
@@ -22,25 +22,45 @@ type participant = {
 }
 export default function Room() {
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    const location = useLocation();
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.userReducer);
     const dispatch = useDispatch<AppDispatch>()
     const [message, setMessage] = useState("");
     const [texts, setTexts] = useState<ChatMessage[]>([]);
     const [participants, setParticipants] = useState<participant[]>([]);
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [socketReady,setSocketReady] = useState(false);
     useEffect(() => {
         const ws: WebSocket = new WebSocket("wss://broroom-backend.onrender.com/");
         setSocket(ws);
         let id: ReturnType<typeof setInterval>;
+
+        const isHosting = location.state.isHosting;
         ws.onopen = () => {
-            ws.send(JSON.stringify({
-                type: "join",
-                payload: {
-                    name: user.name,
-                    avatar: user.avatar,
-                    roomId: user.roomId
-                }
-            }))
+            setSocketReady(true);
+            if (isHosting) {
+                ws.send(JSON.stringify({
+                    type: "host",
+                    payload: {
+                        name: user.name,
+                        avatar: user.avatar,
+                        roomId: user.roomId
+                    }
+                }))
+            }
+            else {
+                ws.send(JSON.stringify({
+                    type: "join",
+                    payload: {
+                        name: user.name,
+                        avatar: user.avatar,
+                        roomId: user.roomId
+                    }
+                }))
+            }
+
             ws.send(JSON.stringify({
                 type: "users",
                 payload: {
@@ -59,10 +79,20 @@ export default function Room() {
 
         ws.onmessage = (e) => {
             const data = JSON.parse(e.data);
+            console.log(data);
             if (data.type === "chat")
                 setTexts(t => [...t, data]);
-            else if (data[0].type === "users") {
+            else if (data.type === "users") {
                 setParticipants(data)
+            }
+            else if (data.type === "error") {
+                setToastMessage(data.payload.message);
+                setToastVisible(true);
+                setTimeout(() => setToastVisible(false), 1000);
+                setTimeout(() => {
+                    clearInterval(id);
+                    navigate("/");
+                }, 1300);
             }
         }
 
@@ -70,7 +100,7 @@ export default function Room() {
             clearInterval(id);
             ws.close();
         };
-    }, [user.avatar, user.name, user.roomId]);
+    }, [user.avatar, user.name, user.roomId, navigate,location]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,11 +133,12 @@ export default function Room() {
         dispatch(clearUser());
         navigate("/");
     }
-    if (!getSocket()) {
-        return
-        <div className="h-[100%] w-[100%] flex justify-center items-center">
-            <span className="loading loading-spinner loading-xl"></span>
-        </div>
+    if (!socketReady) {
+        return (
+            <div className="h-[100%] w-[100%] flex justify-center items-center">
+                <span className="loading loading-spinner loading-xl"></span>
+            </div>
+        )
     }
     return (
         <div className="h-[100%] w-[100%] flex  flex-col lg:flex-row bg-base-300 relative">
@@ -119,7 +150,7 @@ export default function Room() {
                 <div className="flex w-full justify-center text-3xl flex-wrap gap-x-10 gap-y-15 font-bold mb-10">
                     {participants.map((p, idx) => {
                         return (
-                            <div>
+                            <div className="flex flex-col items-center">
                                 <div className="avatar">
                                     <div className="w-16 rounded-full">
                                         <img src={p.payload.avatar ? p.payload.avatar : "/assets/default.jpg"} alt="" />
@@ -146,18 +177,18 @@ export default function Room() {
                         <li className="w-full"><button type="button" onClick={leaveRoom} className="btn btn-error mb-5 text-white font-bold btn-md">Leave</button></li>
                         <li><h1 className="text-xl font-semibold">Users</h1></li>
                         {participants.map((p, idx) => {
-                        return (
-                            <li className="w-full">
-                            <div className="flex justify-start w-full">
-                                <div className="avatar">
-                                    <div className="w-8 rounded-full">
-                                        <img src={p.payload.avatar ? p.payload.avatar : "/assets/default.jpg"} alt="" />
+                            return (
+                                <li className="w-full">
+                                    <div className="flex justify-start w-full">
+                                        <div className="avatar">
+                                            <div className="w-8 rounded-full">
+                                                <img src={p.payload.avatar ? p.payload.avatar : "/assets/default.jpg"} alt="" />
+                                            </div>
+                                        </div>
+                                        <h1 key={idx}>{p.payload.name}</h1>
                                     </div>
-                                </div>
-                                <h1 key={idx}>{p.payload.name}</h1>
-                            </div>
-                            </li>
-                        )
+                                </li>
+                            )
                         })}
                     </ul>
                 </div>
@@ -181,6 +212,11 @@ export default function Room() {
                     <input type="text" onKeyDown={(e) => { if (e.key === "Enter") { sendChat() } }} onChange={(e) => setMessage(e.target.value)} value={message}
                         className="input w-[85%] sm:w-[92%] active:outline-0 text-xl" placeholder="Message here" />
                     <button type="button" onClick={sendChat} className="btn w-[15%] btn-primary lg:w-[7%]">Send</button>
+                </div>
+            </div>
+            <div className={`toast ${toastVisible ? 'block' : 'hidden'}`}>
+                <div className="alert alert-error text-white font-semibold">
+                    <span>{toastMessage}</span>
                 </div>
             </div>
         </div>
