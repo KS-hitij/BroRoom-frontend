@@ -14,11 +14,8 @@ type ChatMessage = {
     }
 };
 type participant = {
-    type: string,
-    payload: {
-        name: string,
-        avatar: string
-    }
+    name: string,
+    avatar: string
 }
 export default function Room() {
     const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -31,7 +28,7 @@ export default function Room() {
     const [participants, setParticipants] = useState<participant[]>([]);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
-    const [socketReady,setSocketReady] = useState(false);
+    const [socketReady, setSocketReady] = useState(false);
     useEffect(() => {
         const ws: WebSocket = new WebSocket("wss://broroom-backend.onrender.com/");
         setSocket(ws);
@@ -82,17 +79,17 @@ export default function Room() {
             console.log(data);
             if (data.type === "chat")
                 setTexts(t => [...t, data]);
-            else if (data[0].type === "users") {
-                setParticipants(data)
+            else if (data.type === "users") {
+                setParticipants(data.payload)
             }
             else if (data.type === "error") {
                 setToastMessage(data.payload.message);
                 setToastVisible(true);
-                setTimeout(() => setToastVisible(false), 1000);
+                setTimeout(() => setToastVisible(false), 2000);
                 setTimeout(() => {
                     clearInterval(id);
                     navigate("/");
-                }, 1300);
+                }, 2300);
             }
         }
 
@@ -100,7 +97,7 @@ export default function Room() {
             clearInterval(id);
             ws.close();
         };
-    }, [user.avatar, user.name, user.roomId, navigate,location]);
+    }, [user.avatar, user.name, user.roomId, navigate, location]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -150,13 +147,13 @@ export default function Room() {
                 <div className="flex w-full justify-center text-3xl flex-wrap gap-x-10 gap-y-15 font-bold mb-10">
                     {participants.map((p, idx) => {
                         return (
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center" key={idx}>
                                 <div className="avatar">
                                     <div className="w-16 rounded-full">
-                                        <img src={p.payload.avatar ? p.payload.avatar : "/assets/default.jpg"} alt="" />
+                                        <img src={p.avatar ? p.avatar : "/assets/default.jpg"} alt="" />
                                     </div>
                                 </div>
-                                <h1 key={idx}>{p.payload.name}</h1>
+                                <h1 key={idx}>{p.name}</h1>
                             </div>
                         )
                     })}
@@ -178,14 +175,14 @@ export default function Room() {
                         <li><h1 className="text-xl font-semibold">Users</h1></li>
                         {participants.map((p, idx) => {
                             return (
-                                <li className="w-full">
+                                <li className="w-full" key={idx}>
                                     <div className="flex justify-start w-full">
                                         <div className="avatar">
                                             <div className="w-8 rounded-full">
-                                                <img src={p.payload.avatar ? p.payload.avatar : "/assets/default.jpg"} alt="" />
+                                                <img src={p.avatar ? p.avatar : "/assets/default.jpg"} alt="" />
                                             </div>
                                         </div>
-                                        <h1 key={idx}>{p.payload.name}</h1>
+                                        <h1 key={idx}>{p.name}</h1>
                                     </div>
                                 </li>
                             )
@@ -202,7 +199,7 @@ export default function Room() {
                                     <div className="w-12 rounded-full"><img src={t.payload.avatar.length > 0 ? t.payload.avatar : "/assets/default.jpg"} alt="" /></div>
                                 </div>
                                 <div className="chat-footer text-lg">{t.payload.name}</div>
-                                <div className="chat-bubble">{t.payload.message}</div>
+                                <div className="chat-bubble flex flex-wrap wrap-break-word break-all">{t.payload.message}</div>
                             </div>
                         ))
                     }
